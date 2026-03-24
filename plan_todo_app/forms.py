@@ -8,7 +8,7 @@ class TodoCreateForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}),
     )
 
-    class Meta:
+    class Meta: 
         model = Todo
         fields = ["title", "due_date"]
         widgets = {
