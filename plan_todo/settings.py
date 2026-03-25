@@ -1,8 +1,16 @@
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "dev-only-change-me"
+
+if os.environ.get("DJANGO_DEVELOPMENT"):
+    load_dotenv()
+
+load_dotenv()
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = []
 

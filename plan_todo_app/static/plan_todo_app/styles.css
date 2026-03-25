@@ -86,10 +86,16 @@ h1{
 .add-right{
   display:flex;
   align-items:center;
+  flex-wrap: wrap;
   gap: 14px;
 }
+.calendar-wrap{
+  width: min(170px, 100%);
+}
 .calendar-wrap input[type="date"]{
-  width: 170px;
+  display: block;
+  width: 100%;
+  max-width: 100%;
   height: 44px;
   border: 1px solid #c8d0d7;
   border-radius: 8px;
@@ -316,6 +322,82 @@ h1{
   padding: 16px;
 }
 
+.flash-wrap{
+  width: min(1040px, 100%);
+  margin: 8px auto 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.flash{
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid #b8dfc2;
+  background-color: #ecf8ef;
+  color: #1f5f33;
+  font-weight: 600;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .28s ease, transform .28s ease, margin .28s ease, padding .28s ease;
+}
+
+.flash.is-hiding{
+  opacity: 0;
+  transform: translateY(-6px);
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.flash.success{
+  border-color: #b8dfc2;
+  background-color: #ecf8ef;
+  color: #1f5f33;
+}
+
+.flash.error{
+  border-color: #b8dfc2;
+  background-color: #ecf8ef;
+  color: #1f5f33;
+}
+
+.flash.warning{
+  border-color: #b8dfc2;
+  background-color: #ecf8ef;
+  color: #1f5f33;
+}
+
+.flash.info{
+  border-color: #b8dfc2;
+  background-color: #ecf8ef;
+  color: #1f5f33;
+}
+
+.flash.debug{
+  border-color: #b8dfc2;
+  background-color: #ecf8ef;
+  color: #1f5f33;
+}
+
+
+
+.list-card {
+display: block;
+background: #fff;
+border: 1px solid #d7dde2;
+border-radius: 12px;
+padding: 14px 16px;
+text-decoration: none;
+}
+
+
+
+.list-card-title {
+font-size: 22px;
+font-weight: 700;
+color: #1f2a33;
+}
+
 .new-list-row{
   display:flex;
   align-items:flex-end;
@@ -346,9 +428,31 @@ h1{
   h1{ font-size: 38px; }
   .add-form{ flex-direction:column; align-items:stretch; }
   .add-left input[type="text"]{ width: 100%; }
-  .add-right{ justify-content:flex-end; }
+  .add-right{
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content:flex-end;
+  }
+  .calendar-wrap{ width: 100%; }
+  .calendar-wrap input{
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
   .row{ grid-template-columns: 44px 1fr; }
-  .pill, .right{ display:none; }
+  .pill{ display:none; }
+  .right{
+    display:flex;
+    grid-column: 2;
+    justify-self: start;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .right .meta{ display:none; }
+  .actions{ gap: 10px; }
   .toolbar{ flex-wrap:wrap; }
   .select{ min-width: 220px; }
+  
 }

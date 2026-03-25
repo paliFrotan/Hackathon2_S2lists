@@ -24,6 +24,7 @@
 
         <div class="appbar-right">
           {% if user.is_authenticated %}
+          <h1>Hello {{request.user|title}}</h1>
             <a class="appbtn" href="{% url 'plan_todo_app:lists' %}">My Lists</a>
             <button class="appbtn primary" type="button" onclick="openModal()">+ New List</button>
 
@@ -37,6 +38,14 @@
           {% endif %}
         </div>
       </header>
+
+      {% if messages %}
+        <div class="flash-wrap" aria-live="polite" aria-atomic="true">
+          {% for message in messages %}
+            <div class="flash {{ message.tags|default:'info' }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
       {% if user.is_authenticated %}
       <div id="modalBackdrop" class="modal-backdrop" hidden></div>
@@ -76,6 +85,14 @@
     }
     document.addEventListener("keydown", (e) => {
       if(e.key === "Escape") closeModal();
+    });
+
+    // Auto-dismiss flash messages after a short delay.
+    document.querySelectorAll(".flash").forEach((el) => {
+      window.setTimeout(() => {
+        el.classList.add("is-hiding");
+        window.setTimeout(() => el.remove(), 300);
+      }, 3500);
     });
   </script>
 </body>
