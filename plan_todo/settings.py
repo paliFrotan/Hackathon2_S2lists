@@ -11,9 +11,9 @@ if os.environ.get("DJANGO_DEVELOPMENT"):
 
 load_dotenv()
 
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = True
-SECRET_KEY = 'dev-only-change-me'
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -66,6 +66,7 @@ DATABASES = {
 }
 
 
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
@@ -76,6 +77,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
