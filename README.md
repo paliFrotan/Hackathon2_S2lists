@@ -1,6 +1,5 @@
 # Hackathon2_S2lists
-# Group Project
-# Hello
+
 # Plan To Do
 
 Plan To Do is a Django-based web application for managing personal tasks. It allows users to create, update, complete, and delete tasks, with a focus on privacy and usability.
