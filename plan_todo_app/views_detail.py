@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -67,6 +68,9 @@ def add_todo(request, list_id: int):
         todo.owner = request.user
         todo.todo_list = todo_list
         todo.save()
+        messages.success(request, "Todo created.")
+    else:
+        messages.error(request, "Could not create todo. Check the form and try again.")
     return redirect("plan_todo_app:list_detail", list_id=todo_list.id)
 
 
@@ -88,6 +92,9 @@ def update_todo(request, list_id: int, todo_id: int):
     form = TodoUpdateForm(request.POST, instance=todo)
     if form.is_valid():
         form.save()
+        messages.success(request, "Todo updated.")
+    else:
+        messages.error(request, "Could not update todo. Check the form and try again.")
     return redirect("plan_todo_app:list_detail", list_id=todo_list.id)
 
 
@@ -97,4 +104,5 @@ def delete_todo(request, list_id: int, todo_id: int):
     todo_list = _owned_list_or_404(request.user, list_id)
     todo = get_object_or_404(Todo, pk=todo_id, todo_list=todo_list)
     todo.delete()
+    messages.success(request, "Todo deleted.")
     return redirect("plan_todo_app:list_detail", list_id=todo_list.id)

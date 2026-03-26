@@ -25,8 +25,8 @@
 
   <div class="lists-grid">
     {% for l in lists %}
-      <a class="list-card" href="{% url 'plan_todo_app:list_detail' l.id %}">
-        <div class="list-card-title">{{ l.name }}</div>
+      <a class="list-card"  href="{% url 'plan_todo_app:list_detail' l.id %}">
+        <div class="panel">{{ l.name }}</div>
       </a>
     {% empty %}
       <div class="empty">No lists yet. Create one above.</div>
