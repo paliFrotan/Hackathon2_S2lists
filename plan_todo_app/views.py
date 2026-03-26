@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 
 from .forms import TodoCreateForm, TodoUpdateForm
 from .models import Todo
@@ -59,9 +58,6 @@ def add_todo(request):
         todo = form.save(commit=False)
         todo.owner = request.user
         todo.save()
-        messages.success(request, "Todo created.")
-    else:
-        messages.error(request, "Could not create todo. Check the form and try again.")
     return redirect("plan_todo_app:index")
 
 
@@ -81,9 +77,6 @@ def update_todo(request, todo_id: int):
     form = TodoUpdateForm(request.POST, instance=todo)
     if form.is_valid():
         form.save()
-        messages.success(request, "Todo updated.")
-    else:
-        messages.error(request, "Could not update todo. Check the form and try again.")
     return redirect("plan_todo_app:index")
 
 def lists(request):
@@ -96,5 +89,4 @@ def lists(request):
 def delete_todo(request, todo_id: int):
     todo = get_object_or_404(Todo, pk=todo_id, owner=request.user)
     todo.delete()
-    messages.success(request, "Todo deleted.")
     return redirect("plan_todo_app:index")

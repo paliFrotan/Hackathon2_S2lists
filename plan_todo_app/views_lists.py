@@ -1,13 +1,29 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.views.decorators.http import require_http_methods, require_POST
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
 from django.utils.http import url_has_allowed_host_and_scheme
 from .models import List
-
-from django.views.decorators.http import require_http_methods
-
 from .models import Todo
+# Inline update view for a list
+@login_required
+@require_http_methods(["POST"])
+def update_list(request, list_id):
+    list_obj = get_object_or_404(List, pk=list_id, owner=request.user)
+    new_name = request.POST.get("name", "").strip()
+    if new_name:
+        list_obj.name = new_name
+        list_obj.save()
+    return redirect('plan_todo_app:lists')
+
+# Delete view for a list
+@login_required
+@require_http_methods(["POST"])
+def delete_list(request, list_id):
+    list_obj = get_object_or_404(List, pk=list_id, owner=request.user)
+    list_obj.delete()
+    return redirect('plan_todo_app:lists')
+
 
 
 @login_required
@@ -21,7 +37,6 @@ def lists_index(request):
 def create_list(request):
     title = (request.POST.get("title") or request.POST.get("name") or "").strip()
     if not title:
-        messages.error(request, "List title is required.")
         lists = List.objects.filter(owner=request.user).order_by("name")
         return render(
             request,
@@ -30,7 +45,6 @@ def create_list(request):
         )
 
     todo_list = List.objects.create(name=title, owner=request.user)
-    messages.success(request, f"List '{todo_list.name}' created.")
     return redirect("plan_todo_app:list_detail", list_id=todo_list.id)
 
 def list_detail(request, list_id):
@@ -50,7 +64,6 @@ def create_list_page(request):
         title = (request.POST.get("title") or request.POST.get("name") or "").strip()
         if title:
             todo_list = List.objects.create(name=title, owner=request.user)
-            messages.success(request, f"List '{todo_list.name}' created.")
 
             # Prefer safe `next`, otherwise go to the new list
             if next_url and url_has_allowed_host_and_scheme(
@@ -61,7 +74,6 @@ def create_list_page(request):
                 return redirect(next_url)
 
             return redirect("plan_todo_app:list_detail", list_id=todo_list.id)
-        messages.error(request, "List title is required.")
     else:
         pass
 

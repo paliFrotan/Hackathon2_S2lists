@@ -1,35 +1,214 @@
-{% extends "plan_todo_app/base.html" %}
+<!-- prettier-ignore -->
+{% extends "plan_todo_app/base.html" %} 
 {% block title %}My Lists - My Todo-s{% endblock %}
-
 {% block content %}
-  <div class="page-head">
-    <h2 class="page-title">My Lists</h2>
+<div class="page-head">
+    <h2 class="page-title">List Maker</h2>
     <p class="page-subtitle">Create a list and click it to view its todos.</p>
-  </div>
+</div>
 
-  <div class="panel">
-    <form class="new-list-form" action="{% url 'plan_todo_app:create_list' %}" method="post">
-      {% csrf_token %}
-      <div class="new-list-row">
-        <div class="new-list-field">
-          <label for="list-title">List title</label>
-          <input id="list-title" type="text" name="title" maxlength="255" placeholder="Work" required>
-          {% if list_error %}
-            <div class="field-error">{{ list_error }}</div>
-          {% endif %}
+<div class="panel">
+    <form
+        class="new-list-form"
+        action="{% url 'plan_todo_app:create_list' %}"
+        method="post"
+    >
+        {% csrf_token %}
+        <div class="new-list-row">
+            <div class="new-list-field">
+                <label for="list-title">List title</label>
+                <input
+                    id="list-title"
+                    type="text"
+                    name="title"
+                    maxlength="255"
+                    placeholder="Work"
+                    required
+                />
+                {% if list_error %}
+                <div class="field-error">{{ list_error }}</div>
+                {% endif %}
+            </div>
+            <button class="appbtn primary" type="submit">Create</button>
         </div>
-        <button class="appbtn primary" type="submit">Create</button>
-      </div>
     </form>
-  </div>
-
-  <div class="lists-grid">
+</div>
+<div>
+    <h2>Select a List</h2>
+</div>
+<div class="lists-grid">
     {% for l in lists %}
-      <a class="list-card"  href="{% url 'plan_todo_app:list_detail' l.id %}">
-        <div class="panel">{{ l.name }}</div>
-      </a>
+    <div
+        class="list-card{% if selected_list and l.id == selected_list.id %} selected{% endif %}"
+        style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        "
+    >
+        <a
+            href="{% url 'plan_todo_app:list_detail' l.id %}"
+            class="list-card-title{% if selected_list and l.id == selected_list.id %} selected{% endif %}"
+            style="flex: 1; min-width: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 30ch; color: {% if selected_list and l.id == selected_list.id %}#20b883{% else %}#2b3238{% endif %}; font-weight: 500; text-decoration: none;"
+            >{{ l.name|slice:":30" }}{% if l.name|length > 30 %}…{% endif %}</a
+        >
+        <div
+            class="list-actions"
+            id="list-actions-{{ l.id }}"
+            style="display: flex; gap: 8px"
+        >
+            <!-- Edit Icon -->
+            <button
+                class="action edit-list-btn"
+                title="Edit"
+                onclick="showEditForm({{ l.id }}, '{{ l.name|escapejs }}')"
+                style="
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: #2aa4db;
+                    font-size: 18px;
+                "
+            >
+                ✏️
+            </button>
+            <!-- Delete Icon -->
+            <button
+                class="action delete-list-btn"
+                title="Delete"
+                onclick="confirmDeleteList({{ l.id }}, '{{ l.name|escapejs }}')"
+                style="
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: #e53935;
+                    font-size: 18px;
+                "
+            >
+                🗑️
+            </button>
+        </div>
+        <!-- Inline Edit Form (hidden by default) -->
+        <form
+            id="edit-list-form-{{ l.id }}"
+            class="edit-list-form"
+            action="{% url 'plan_todo_app:update_list' l.id %}"
+            method="post"
+            style="display: none; flex: 1; gap: 6px; align-items: center"
+        >
+            {% csrf_token %}
+            <input
+                type="text"
+                name="name"
+                value="{{ l.name }}"
+                maxlength="255"
+                required
+                style="width: 70%; min-width: 80px"
+            />
+            <button type="submit" class="appbtn btn-small">Save</button>
+            <button
+                type="button"
+                class="appbtn btn-small"
+                onclick="hideEditForm({{ l.id }})"
+            >
+                Cancel
+            </button>
+        </form>
+        <!-- JS moved to bottom of template -->
+    </div>
     {% empty %}
-      <div class="empty">No lists yet. Create one above.</div>
+    <div class="empty">No lists yet. Create one above.</div>
     {% endfor %}
-  </div>
+    <script>
+        function showEditForm(listId, listName) {
+            document.getElementById("edit-list-form-" + listId).style.display =
+                "flex";
+            document.getElementById("list-actions-" + listId).style.display =
+                "none";
+        }
+        function hideEditForm(listId) {
+            document.getElementById("edit-list-form-" + listId).style.display =
+                "none";
+            document.getElementById("list-actions-" + listId).style.display =
+                "flex";
+        }
+    </script>
+    <!-- Delete Confirmation Modal -->
+    <div
+        id="deleteListModal"
+        class="modal"
+        style="
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.2);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        "
+    >
+        <div
+            style="
+                background: #fff;
+                padding: 24px 32px;
+                border-radius: 10px;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+                min-width: 300px;
+            "
+        >
+            <div
+                id="deleteListModalText"
+                style="margin-bottom: 18px; font-size: 18px"
+            ></div>
+            <form id="deleteListForm" method="post" action="">
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    class="appbtn btn-small"
+                    style="background: #e53935; color: #fff"
+                >
+                    Delete
+                </button>
+                <button
+                    type="button"
+                    class="appbtn btn-small"
+                    onclick="hideDeleteListModal()"
+                >
+                    Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function showEditForm(listId, listName) {
+        document
+            .querySelectorAll(".edit-list-form")
+            .forEach((f) => (f.style.display = "none"));
+        document.getElementById("edit-list-form-" + listId).style.display =
+            "flex";
+    }
+    function hideEditForm(listId) {
+        document.getElementById("edit-list-form-" + listId).style.display =
+            "none";
+    }
+    function confirmDeleteList(listId, listName) {
+        document.getElementById("deleteListModal").style.display = "flex";
+        document.getElementById("deleteListModalText").innerText =
+            `Delete list "${listName}"? This cannot be undone.`;
+        document.getElementById("deleteListForm").action =
+            `/lists/${listId}/delete/`;
+    }
+    function hideDeleteListModal() {
+        document.getElementById("deleteListModal").style.display = "none";
+    }
+</script>
 {% endblock %}
