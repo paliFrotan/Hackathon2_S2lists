@@ -15,8 +15,7 @@ if os.environ.get("DJANGO_DEVELOPMENT"):
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [host for host in os.environ.get(
-    'DJANGO_ALLOWED_HOSTS', '').split(',') if host]
+ALLOWED_HOSTS = ['127.0.0.1', '.herokuapp.com']
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
