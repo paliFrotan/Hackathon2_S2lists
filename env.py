@@ -1,7 +1,7 @@
 import os
 
 os.environ['DJANGO_SECRET_KEY'] = 'dev-only-change-me'
-os.environ['DJANGO_DEBUG'] = 'False'  # or 'False'
+os.environ['DJANGO_DEBUG'] = 'False'  # or 'True'
 
 if os.environ['DJANGO_DEBUG'] == 'False':
     os.environ['DJANGO_ALLOWED_HOSTS'] = 's2lists.herokuapp.com'
