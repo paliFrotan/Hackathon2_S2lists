@@ -7,7 +7,7 @@ from . import views_detail
 app_name = "plan_todo_app"
 
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", views_lists.lists_index, name="index"),
     path("lists/", views_lists.lists_index, name="lists"),
     path("lists/<int:list_id>/", views_detail.list_detail, name="list_detail"),
     path("lists/<int:list_id>/add/", views_detail.add_todo, name="add"),
@@ -15,6 +15,8 @@ urlpatterns = [
     path("lists/<int:list_id>/delete/<int:todo_id>/", views_detail.delete_todo, name="delete"),
     path("lists/<int:list_id>/toggle/<int:todo_id>/", views_detail.toggle_done, name="toggle"),
     path("lists/<int:list_id>/", views_lists.list_detail, name="list_detail"),
+    path("lists/<int:list_id>/update/", views_lists.update_list, name="update_list"),
+    path("lists/<int:list_id>/delete/", views_lists.delete_list, name="delete_list"),
     path("lists/create/", views_lists.create_list, name="create_list"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("login/", views_auth.login_view, name="login"),

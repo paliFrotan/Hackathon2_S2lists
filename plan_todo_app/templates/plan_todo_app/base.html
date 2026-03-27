@@ -1,99 +1,155 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{% block title %}My Todo-s{% endblock %}</title>
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'plan_todo_app/styles.css' %}">
-</head>
-<body>
-  <div class="frame">
-    <div class="canvas">
-      <header class="appbar">
-        <div class="appbar-left">
-          <div class="brand">
-            <div class="logo" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M20.3 6.7a1 1 0 0 1 0 1.4l-9.1 9.1a1 1 0 0 1-1.4 0L3.7 11.1a1 1 0 1 1 1.4-1.4l5.4 5.4 8.4-8.4a1 1 0 0 1 1.4 0z" fill="#fff"/>
-              </svg>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>{% block title %}My Todo-s{% endblock %}</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'plan_todo_app/styles.css' %}" />
+    </head>
+    <body>
+        <div class="frame">
+            <div class="canvas">
+                <header class="appbar">
+                    <div class="appbar-left">
+                        <div class="brand">
+                            <div
+                                style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 3px;
+                                "
+                            >
+                                <span
+                                    style="
+                                        font-size: 1.5em;
+                                        vertical-align: middle;
+                                    "
+                                    >❤️</span
+                                >
+                                <a
+                                    class="brand-title"
+                                    href="{% url 'plan_todo_app:lists' %}"
+                                    style="
+                                        font-size: 1.2em;
+                                        font-weight: bold;
+                                        color: var(--text);
+                                        text-decoration: none;
+                                        margin-left: 1px;
+                                    "
+                                    >Lists</a
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="appbar-right">
+                        {% if user.is_authenticated %}
+                        <a class="appbtn" href="{% url 'plan_todo_app:lists' %}"
+                            >All Lists</a
+                        >
+                        <button
+                            class="appbtn primary"
+                            type="button"
+                            onclick="openModal()"
+                        >
+                            + New List
+                        </button>
+                        <span
+                            style="
+                                margin: 0 10px;
+                                font-weight: 500;
+                                color: var(--text);
+                                vertical-align: middle;
+                            "
+                        >
+                            {{ user.username }}
+                        </span>
+                        <form
+                            action="{% url 'plan_todo_app:logout' %}"
+                            method="post"
+                            style="display: inline"
+                        >
+                            {% csrf_token %}
+                            <button class="appbtn" type="submit">Logout</button>
+                        </form>
+                        {% else %}
+                        <a
+                            class="appbtn primary"
+                            href="{% url 'plan_todo_app:login' %}"
+                            >Login</a
+                        >
+                        <a
+                            class="appbtn"
+                            href="{% url 'plan_todo_app:register' %}"
+                            >Register</a
+                        >
+                        {% endif %}
+                    </div>
+                </header>
+
+                {% if user.is_authenticated %}
+                <div id="modalBackdrop" class="modal-backdrop" hidden></div>
+                <div
+                    id="newListModal"
+                    class="modal"
+                    hidden
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Create new list"
+                >
+                    <div class="modal-card">
+                        <div class="modal-title">Create a new list</div>
+                        <form
+                            action="{% url 'plan_todo_app:create_list' %}"
+                            method="post"
+                            class="modal-form"
+                        >
+                            {% csrf_token %}
+                            <input
+                                type="text"
+                                name="title"
+                                maxlength="120"
+                                placeholder="List title"
+                                required
+                            />
+                            <div class="modal-actions">
+                                <button
+                                    class="appbtn"
+                                    type="button"
+                                    onclick="closeModal()"
+                                >
+                                    Cancel
+                                </button>
+                                <button class="appbtn primary" type="submit">
+                                    Create
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %} {% block content %}{% endblock %}
             </div>
-            <a class="brand-title" href="{% url 'plan_todo_app:lists' %}">My Todo-s</a>
-          </div>
         </div>
 
-        <div class="appbar-right">
-          {% if user.is_authenticated %}
-          <h1>Hello {{request.user|title}}</h1>
-            <a class="appbtn" href="{% url 'plan_todo_app:lists' %}">My Lists</a>
-            <button class="appbtn primary" type="button" onclick="openModal()">+ New List</button>
-
-            <form action="{% url 'plan_todo_app:logout' %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button class="appbtn" type="submit">Logout</button>
-            </form>
-          {% else %}
-            <a class="appbtn primary" href="{% url 'plan_todo_app:login' %}">Login</a>
-            <a class="appbtn" href="{% url 'plan_todo_app:register' %}">Register</a>
-          {% endif %}
-        </div>
-      </header>
-
-      {% if messages %}
-        <div class="flash-wrap" aria-live="polite" aria-atomic="true">
-          {% for message in messages %}
-            <div class="flash {{ message.tags|default:'info' }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      {% if user.is_authenticated %}
-      <div id="modalBackdrop" class="modal-backdrop" hidden></div>
-      <div id="newListModal" class="modal" hidden role="dialog" aria-modal="true" aria-label="Create new list">
-        <div class="modal-card">
-          <div class="modal-title">Create a new list</div>
-          <form action="{% url 'plan_todo_app:create_list' %}" method="post" class="modal-form">
-            {% csrf_token %}
-            <input type="text" name="title" maxlength="120" placeholder="List title" required />
-            <div class="modal-actions">
-              <button class="appbtn" type="button" onclick="closeModal()">Cancel</button>
-              <button class="appbtn primary" type="submit">Create</button>
-            </div>
-          </form>
-        </div>
-      </div>
-      {% endif %}
-
-      {% block content %}{% endblock %}
-    </div>
-  </div>
-
-  <script>
-    function openModal(){
-      const b = document.getElementById("modalBackdrop");
-      const m = document.getElementById("newListModal");
-      if(!b || !m) return;
-      b.hidden = false;
-      m.hidden = false;
-    }
-    function closeModal(){
-      const b = document.getElementById("modalBackdrop");
-      const m = document.getElementById("newListModal");
-      if(!b || !m) return;
-      b.hidden = true;
-      m.hidden = true;
-    }
-    document.addEventListener("keydown", (e) => {
-      if(e.key === "Escape") closeModal();
-    });
-
-    // Auto-dismiss flash messages after a short delay.
-    document.querySelectorAll(".flash").forEach((el) => {
-      window.setTimeout(() => {
-        el.classList.add("is-hiding");
-        window.setTimeout(() => el.remove(), 300);
-      }, 3500);
-    });
-  </script>
-</body>
+        <script>
+            function openModal() {
+                const b = document.getElementById("modalBackdrop");
+                const m = document.getElementById("newListModal");
+                if (!b || !m) return;
+                b.hidden = false;
+                m.hidden = false;
+            }
+            function closeModal() {
+                const b = document.getElementById("modalBackdrop");
+                const m = document.getElementById("newListModal");
+                if (!b || !m) return;
+                b.hidden = true;
+                m.hidden = true;
+            }
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") closeModal();
+            });
+        </script>
+    </body>
 </html>

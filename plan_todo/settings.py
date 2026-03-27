@@ -1,4 +1,6 @@
 from pathlib import Path
+import env
+
 from dotenv import load_dotenv
 import os
 import dj_database_url
@@ -9,12 +11,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 if os.environ.get("DJANGO_DEVELOPMENT"):
     load_dotenv()
 
-load_dotenv()
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
+ALLOWED_HOSTS = [host for host in os.environ.get(
+    'DJANGO_ALLOWED_HOSTS', '').split(',') if host]
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -66,7 +68,6 @@ DATABASES = {
 }
 
 
-
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
@@ -77,7 +78,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
