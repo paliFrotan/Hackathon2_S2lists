@@ -2,10 +2,14 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods, require_POST
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+# Add messages import
 from django.utils.http import url_has_allowed_host_and_scheme
 from .models import List
 from .models import Todo
+from django.contrib import messages
 # Inline update view for a list
+
+
 @login_required
 @require_http_methods(["POST"])
 def update_list(request, list_id):
@@ -14,16 +18,21 @@ def update_list(request, list_id):
     if new_name:
         list_obj.name = new_name
         list_obj.save()
+        messages.success(request, "List updated successfully.")
+    else:
+        messages.info(request, "No changes made to the list.")
     return redirect('plan_todo_app:lists')
 
 # Delete view for a list
+
+
 @login_required
 @require_http_methods(["POST"])
 def delete_list(request, list_id):
     list_obj = get_object_or_404(List, pk=list_id, owner=request.user)
     list_obj.delete()
+    messages.success(request, "List deleted successfully.")
     return redirect('plan_todo_app:lists')
-
 
 
 @login_required
@@ -35,7 +44,8 @@ def lists_index(request):
 @login_required
 @require_POST
 def create_list(request):
-    title = (request.POST.get("title") or request.POST.get("name") or "").strip()
+    title = (request.POST.get("title")
+             or request.POST.get("name") or "").strip()
     if not title:
         lists = List.objects.filter(owner=request.user).order_by("name")
         return render(
@@ -47,6 +57,7 @@ def create_list(request):
     todo_list = List.objects.create(name=title, owner=request.user)
     return redirect("plan_todo_app:list_detail", list_id=todo_list.id)
 
+
 def list_detail(request, list_id):
     list_obj = get_object_or_404(List, pk=list_id)
     todos = Todo.objects.filter(todo_list=list_obj)
@@ -55,13 +66,15 @@ def list_detail(request, list_id):
         "todos": todos,
     })
 
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def create_list_page(request):
     next_url = request.GET.get("next") or request.POST.get("next")
 
     if request.method == "POST":
-        title = (request.POST.get("title") or request.POST.get("name") or "").strip()
+        title = (request.POST.get("title")
+                 or request.POST.get("name") or "").strip()
         if title:
             todo_list = List.objects.create(name=title, owner=request.user)
 
